@@ -9,6 +9,8 @@
 
 #include <string>
 
+using namespace eosio;
+
 namespace eosiosystem {
    class system_contract;
 }
