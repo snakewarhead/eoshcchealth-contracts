@@ -45,19 +45,15 @@ class hptoken : public contract
       inline asset get_balance(account_name owner, symbol_name sym) const;
 
     private:
-      /// @abi table
       struct account
       {
-            uint64_t id;
             asset balance;
 
             uint64_t primary_key() const { return balance.symbol.name(); }
       };
 
-      /// @abi table
-      struct cstats
+      struct currency_stats
       {
-            uint64_t id;
             asset supply;
             asset max_supply;
             account_name issuer;
@@ -66,7 +62,7 @@ class hptoken : public contract
       };
 
       typedef eosio::multi_index<N(accounts), account> accounts;
-      typedef eosio::multi_index<N(stat), cstats> stats;
+      typedef eosio::multi_index<N(stat), currency_stats> stats;
 
       void sub_balance(account_name owner, asset value);
       void add_balance(account_name owner, asset value, account_name ram_payer);
