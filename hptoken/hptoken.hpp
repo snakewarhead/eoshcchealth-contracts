@@ -11,78 +11,88 @@
 
 using namespace eosio;
 
-namespace eosiosystem {
-   class system_contract;
+namespace eosiosystem
+{
+class system_contract;
 }
 
-namespace eoshcc {
+namespace eoshcc
+{
 
-   using std::string;
+using std::string;
 
-   class hptoken : public contract {
-      public:
-         hptoken( account_name self ):contract(self){}
+class hptoken : public contract
+{
+    public:
+      hptoken(account_name self) : contract(self) {}
 
-         void create( account_name issuer,
-                      asset        maximum_supply);
+      void create(account_name issuer,
+                  asset maximum_supply);
 
-         void issue( account_name to, asset quantity, string memo );
+      void issue(account_name to, asset quantity, string memo);
 
-         void retire( asset quantity, string memo );
+      void retire(asset quantity, string memo);
 
-         void transfer( account_name from,
-                        account_name to,
-                        asset        quantity,
-                        string       memo );
+      void transfer(account_name from,
+                    account_name to,
+                    asset quantity,
+                    string memo);
 
-         void close( account_name owner, symbol_type symbol );
+      void close(account_name owner, symbol_type symbol);
 
-         inline asset get_supply( symbol_name sym )const;
-         
-         inline asset get_balance( account_name owner, symbol_name sym )const;
+      inline asset get_supply(symbol_name sym) const;
 
-      private:
-         struct account {
-            asset    balance;
+      inline asset get_balance(account_name owner, symbol_name sym) const;
 
-            uint64_t primary_key()const { return balance.symbol.name(); }
-         };
+    private:
+      /// @abi table
+      struct account
+      {
+            uint64_t id;
+            asset balance;
 
-         struct currency_stats {
-            asset          supply;
-            asset          max_supply;
-            account_name   issuer;
+            uint64_t primary_key() const { return balance.symbol.name(); }
+      };
 
-            uint64_t primary_key()const { return supply.symbol.name(); }
-         };
+      /// @abi table
+      struct cstats
+      {
+            uint64_t id;
+            asset supply;
+            asset max_supply;
+            account_name issuer;
 
-         typedef eosio::multi_index<N(accounts), account> accounts;
-         typedef eosio::multi_index<N(stat), currency_stats> stats;
+            uint64_t primary_key() const { return supply.symbol.name(); }
+      };
 
-         void sub_balance( account_name owner, asset value );
-         void add_balance( account_name owner, asset value, account_name ram_payer );
+      typedef eosio::multi_index<N(accounts), account> accounts;
+      typedef eosio::multi_index<N(stat), cstats> stats;
 
-      public:
-         struct transfer_args {
-            account_name  from;
-            account_name  to;
-            asset         quantity;
-            string        memo;
-         };
-   };
+      void sub_balance(account_name owner, asset value);
+      void add_balance(account_name owner, asset value, account_name ram_payer);
 
-   asset hptoken::get_supply( symbol_name sym )const
-   {
-      stats statstable( _self, sym );
-      const auto& st = statstable.get( sym );
+    public:
+      struct transfer_args
+      {
+            account_name from;
+            account_name to;
+            asset quantity;
+            string memo;
+      };
+};
+
+asset hptoken::get_supply(symbol_name sym) const
+{
+      stats statstable(_self, sym);
+      const auto &st = statstable.get(sym);
       return st.supply;
-   }
+}
 
-   asset hptoken::get_balance( account_name owner, symbol_name sym )const
-   {
-      accounts accountstable( _self, owner );
-      const auto& ac = accountstable.get( sym );
+asset hptoken::get_balance(account_name owner, symbol_name sym) const
+{
+      accounts accountstable(_self, owner);
+      const auto &ac = accountstable.get(sym);
       return ac.balance;
-   }
+}
 
-} /// namespace eoshcc
+} // namespace eoshcc
